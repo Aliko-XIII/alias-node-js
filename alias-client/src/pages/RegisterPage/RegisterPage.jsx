@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { registerUser } from '../../fetchers/registerUser';
 
 export default function RegisterPage() {
 	const userRef = useRef();
@@ -21,10 +22,18 @@ export default function RegisterPage() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log(user, pwd);
-		setUser('');
-		setPwd('');
-		setSuccess(true);
+		try {
+			const registeredUser = await registerUser(user, pwd);
+			console.log('User registered:', registeredUser);
+
+			setUser('');
+			setPwd('');
+			setSuccess(true);
+			navigate('/login');
+		} catch (error) {
+			setErrMsg('Registration failed. Please try again.');
+			errRef.current.focus();
+		}
 	};
 
 	return (

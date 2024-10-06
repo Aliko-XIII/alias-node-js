@@ -46,6 +46,19 @@ export class RoomsController {
   async delete(@Param('id', ParseObjectIdPipe) id: Types.ObjectId) {
     return this.roomsService.delete(id);
   }
+  /**
+   * Endpoint to calculate the scores for all teams and players in a specific room.
+   * This method handles PATCH requests to the URL '/rooms/:roomId/calculate-scores'.
+   *
+   * @param {Types.ObjectId} roomId - The ID of the room for which scores will be calculated.
+   * @returns {Promise<{ message: string }>} - A message indicating the success of the operation.
+   */
+  @Patch(':roomId/calculate-scores')
+  async calculateScores(
+    @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
+  ) {
+    return this.roomsService.calculateScores(roomId);
+  }
 
   @Delete()
   async deleteAllRooms(): Promise<{ message: string }> {

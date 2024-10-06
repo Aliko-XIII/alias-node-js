@@ -27,14 +27,17 @@ export class Team {
   @Prop({ type: String, default: null })
   description: string;
 
-  @Prop({ type: Boolean, default: false })
-  isTurn: boolean;
-
   @Prop({ type: [Types.ObjectId], ref: 'words', default: [] })
   tryedWords: Types.ObjectId[];
 
   @Prop({ type: Types.ObjectId, ref: 'users', default: null }) // Keep default as null, delete required: true
   teamLeader: Types.ObjectId;
+
+  @Prop({ type: Boolean, default: null })
+  success: boolean;
+
+  @Prop({ type: String, default: null })
+  answer: string;
 }
 
 export type TeamDocument = HydratedDocument<Team>;

@@ -157,7 +157,8 @@ export class TeamsService {
       .exec();
   }
 
-  findAll(roomId: Types.ObjectId, nestUsers: boolean) {
+
+  findAll(roomId: Types.ObjectId, nestUsers: boolean = false) {
     let query = this.teamModel.find({ roomId }).sort({ teamScore: -1 });
 
     if (nestUsers) {
@@ -276,6 +277,38 @@ export class TeamsService {
       .findOneAndUpdate(
         { _id: teamId, roomId },
         { teamLeader: setTeamLeaderDto.userId },
+        { new: true },
+      )
+      .exec();
+
+    if (!team) {
+      throw new NotFoundException(`Team ${teamId} in room ${roomId} not found`);
+    }
+
+    return team;
+  }
+
+  /**
+   * Resets the round-specific fields (description, success, answer) to null for the given team.
+   * @param roomId - The ID of the room where the team is located.
+   * @param teamId - The ID of the team whose round fields will be reset.
+   * @returns {Promise<TeamDocument>} - The updated team document with nullified fields.
+   */
+  async resetRound(
+    roomId: Types.ObjectId,
+    teamId: Types.ObjectId,
+  ): Promise<TeamDocument> {
+    const team = await this.teamModel
+      .findOneAndUpdate(
+        { _id: teamId, roomId },
+        {
+          $set: {
+            selectedWord: null,
+            description: null,
+            success: null,
+            answer: null,
+          },
+        },
         { new: true },
       )
       .exec();

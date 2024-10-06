@@ -274,4 +274,8 @@ export class UsersService {
 
     return this.mapToSafeDto(user);
   }
+
+  async incrementScore(userId: Types.ObjectId, score: number): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, { $inc: { score: score } });
+  }
 }

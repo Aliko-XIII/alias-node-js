@@ -9,148 +9,144 @@ import { getPlayersFromTeam } from '../../fetchers/getPlayersFromTeam';
 import { joinTeam, leaveTeam } from '../../fetchers/userTeam';
 import { getTeam } from '../../fetchers/getTeam';
 
-export default function Room({
-	roomObj,
-	teamObj,
-	setRoom,
-	setTeam,
-	getIdFromToken,
-	setRole,
-}) {
-	const navigate = useNavigate();
-	const [cookies] = useCookies(['access_token']);
 
-	const handleBackClick = async () => {
-		const accessToken = cookies.access_token;
+// eslint-disable-next-line react/prop-types
+export default function Room({ roomObj, teamObj, setRoom, setTeam, getIdFromToken, setRole }) {
+  const navigate = useNavigate();
+  const [cookies] = useCookies(['access_token']);
 
-		const userId = getIdFromToken();
-		if (!userId) {
-			console.error('No userId found in token.');
-			return;
-		}
-		await leaveRoom(userId, roomObj._id, accessToken);
-		if (teamObj._id) {
-			await leaveTeam(userId, teamObj._id, accessToken);
-		}
-		setRoom({});
-		setTeam({});
-		navigate('/home');
-	};
+  const handleBackClick = async () => {
+    const accessToken = cookies.access_token;
 
-	const maxUsers = 3;
-	const [teams, setTeams] = useState([]);
+    const userId = getIdFromToken();
+    if (!userId) {
+      console.error('No userId found in token.');
+      return;
+    }
+    await leaveRoom(userId, roomObj._id, accessToken);
+    if (teamObj._id) {
+      await leaveTeam(userId, teamObj._id, accessToken);
+    }
+    setRoom({});
+    setTeam({})
+    navigate('/home');
+  };
 
-	const loadTeams = async () => {
-		try {
-			const authToken = cookies.access_token;
+  const maxUsers = 3;
+  const [teams, setTeams] = useState([]);
 
-			if (!authToken) {
-				console.error('No access token found.');
-				navigate('/login');
-				return;
-			}
 
-			let fetchedTeams = await getTeamsFromRoom(roomObj._id);
-			fetchedTeams = await Promise.all(
-				fetchedTeams.map(async (team) => {
-					const players = await getPlayersFromTeam(team.roomId, team._id);
-					team.players = players;
-					return team;
-				})
-			);
-			setTeams(fetchedTeams);
-			fetchedTeams.forEach((fetchedTeam) => {
-				if (teamObj._id == fetchedTeam._id) {
-					setTeam(fetchedTeam);
-				}
-			});
-		} catch (error) {
-			console.error('Failed to load teams:', error);
-		}
-	};
+  const loadTeams = async () => {
+    try {
+      const authToken = cookies.access_token;
 
-	useEffect(() => {
-		loadTeams();
-		const intervalId = setInterval(() => {
-			loadTeams();
-		}, 500);
-		return () => clearInterval(intervalId);
-	}, [cookies, roomObj, navigate]);
+      if (!authToken) {
+        console.error('No access token found.');
+        navigate('/login');
+        return;
+      }
 
-	const updateTeam = async () => {
-		const team = await getTeam(roomObj._id, teamObj._id, cookies.access_token);
-		setTeam(team);
-	};
+      let fetchedTeams = await getTeamsFromRoom(roomObj._id);
+      fetchedTeams = await Promise.all(fetchedTeams.map(
+        async team => {
+          const players = await getPlayersFromRoom(team.roomId, team._id)
+          team.players = players;
+          return team;
+        }))
+      setTeams(fetchedTeams);
+      fetchedTeams.forEach(fetchedTeam => {
+        if (teamObj._id == fetchedTeam._id) {
+          setTeam(fetchedTeam);
+        }
+      })
+    } catch (error) {
+      console.error('Failed to load teams:', error);
+    }
+  };
 
-	useEffect(() => {
-		const allTeamsFull = teams.every((team) => team.players.length >= maxUsers);
-		if (allTeamsFull && teams.length > 0) {
-			updateTeam();
-			const userId = getIdFromToken();
-			if (teamObj.describer != null && teamObj.teamLeader != null) {
-				if (teamObj.describer == userId) {
-					setRole('describer');
-					navigate('/describer');
-					return;
-				} else if (teamObj.teamLeader == userId) {
-					setRole('leader');
-				} else {
-					setRole('player');
-				}
-				navigate('/wait-describer');
-				return;
-			}
-		}
-	}, [teams, navigate]);
+  useEffect(() => {
+    loadTeams();
+    const intervalId = setInterval(() => {
+      loadTeams();
+    }, 500);
+    return () => clearInterval(intervalId);
+  }, [cookies, roomObj, navigate]);
 
-	const addUserToTeam = (teamId) => {
-		const userId = getIdFromToken();
-		teams.forEach(async (team) => {
-			if (team._id === teamId && team.players.length < maxUsers) {
-				const teamToJoin = await joinTeam(userId, teamId, cookies.access_token);
-				setTeam(teams.find((team) => team._id == teamToJoin.teamId));
-			}
-			return team;
-		});
-	};
+  const updateTeam = async () => {
+    const team = await getTeam(roomObj._id, teamObj._id, cookies.access_token);
+    setTeam(team);
+  }
 
-	const removeUserFromTeam = (teamId) => {
-		const userId = getIdFromToken();
-		teams.forEach(async (team) => {
-			if (team._id === teamId) {
-				await leaveTeam(userId, teamId, cookies.access_token);
-				setTeam({});
-			}
-			return team;
-		});
-	};
+  useEffect(() => {
+    const allTeamsFull = teams.every(team => team.players.length >= maxUsers);
+    if (allTeamsFull && teams.length > 0) {
+      updateTeam();
+      console.log('ready');
+      const userId = getIdFromToken();
+      console.log('teamObj:', teamObj);
+      if (teamObj.describer != null && teamObj.teamLeader != null) {
+        if (teamObj.describer == userId) {
+          setRole('describer');
+          navigate('/describer');
+          return;
+        }
+        else if (teamObj.teamLeader == userId) {
+          setRole('leader');
+        }
+        else {
+          setRole('player');
+        }
+        navigate('/wait-describer');
+        return;
+      }
 
-	const totalUsers = teams.reduce((acc, team) => acc + team.players.length, 0);
+    }
+  }, [teams, navigate]);
 
-	return (
-		<div className='container text-black py-5'>
-			<div className='d-flex justify-content-between align-items-center mb-4'>
-				<h3 className='mb-0'>Room {roomObj.name}</h3>
-				<h3 className='mb-0'>
-					Users {totalUsers}/{maxUsers * teams.length}
-				</h3>
-				<button className='btn btn-secondary' onClick={handleBackClick}>
-					BACK
-				</button>
-			</div>
+  const addUserToTeam = (teamId) => {
+    const userId = getIdFromToken();
+    teams.forEach(async (team) => {
+      if (team._id === teamId && team.players.length < maxUsers) {
+        const teamToJoin = await joinTeam(userId, teamId, cookies.access_token);
+        setTeam(teams.find(team => team._id == teamToJoin.teamId));
+      }
+      return team;
+    })
+  };
 
-			{/* <div className="row"> */}
-			{teams.map((team) => (
-				<div key={team.id} className='col-md-4 mb-4'>
-					<TeamCard
-						team={team}
-						isFull={team.players.length >= maxUsers}
-						onAddUser={addUserToTeam}
-						onRemoveUser={removeUserFromTeam}
-					/>
-				</div>
-			))}
-			{/* </div> */}
-		</div>
-	);
+  const removeUserFromTeam = (teamId) => {
+    const userId = getIdFromToken();
+    teams.forEach(async (team) => {
+      if (team._id === teamId) {
+        await leaveTeam(userId, teamId, cookies.access_token);
+        setTeam({});
+      }
+      return team;
+    })
+  };
+
+  const totalUsers = teams.reduce((acc, team) => acc + team.players.length, 0);
+
+  return (
+    <div className="container text-black py-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3 className="mb-0">Room {roomObj.name}</h3>
+        <h3 className="mb-0">Users {totalUsers}/{maxUsers * teams.length}</h3>
+        <button className="btn btn-secondary" onClick={handleBackClick}>BACK</button>
+      </div>
+
+      {/* <div className="row"> */}
+      {teams.map((team) => (
+        <div key={team.id} className="col-md-4 mb-4">
+          <TeamCard
+            team={team}
+            isFull={team.players.length >= maxUsers}
+            onAddUser={addUserToTeam}
+            onRemoveUser={removeUserFromTeam}
+          />
+        </div>
+      ))}
+      {/* </div> */}
+    </div>
+  );
 }

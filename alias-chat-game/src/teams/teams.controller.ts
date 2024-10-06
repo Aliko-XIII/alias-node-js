@@ -20,7 +20,7 @@ export class TeamsController {
   constructor(
     private readonly teamsService: TeamsService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   // Add a team to a room
   @Post() // api/v1/rooms/{roomId}/teams
@@ -122,5 +122,14 @@ export class TeamsController {
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
   ) {
     return this.teamsService.defineDescriberAndLeader(roomId, teamId);
+  }
+
+  // Reset round fields to null
+  @Put(':teamId/reset') // api/v1/rooms/{roomId}/teams/{teamId}/reset
+  resetRound(
+    @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
+    @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
+  ) {
+    return this.teamsService.resetRound(roomId, teamId);
   }
 }

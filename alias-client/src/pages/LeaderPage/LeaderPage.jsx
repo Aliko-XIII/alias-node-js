@@ -31,8 +31,16 @@ export default function LeaderPage({ getTokens, teamObj, setTeam }) {
 		fetchWordId();
 	}, [roomId, teamId]);
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
+  useEffect(() => {
+    const fetchWordId = async () => {
+      try {
+        const selectedWordId = await getSelectedWordId(roomId, teamId);
+        console.log("selectedWordId: ", selectedWordId);
+        setWordId(selectedWordId);
+      } catch {
+        setMessage("Failed to load the word ID. Please try again later.");
+      }
+    };
 
 		// Time runs out
 		if (isTimeUp) return;
