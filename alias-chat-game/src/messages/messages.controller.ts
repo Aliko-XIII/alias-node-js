@@ -1,8 +1,10 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { ParseObjectIdPipe } from '../parse-id.pipe';
 import { Types } from 'mongoose';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}

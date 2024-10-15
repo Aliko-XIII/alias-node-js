@@ -6,6 +6,7 @@ import { Team, TeamSchema } from './schemas/team.schema';
 import { UsersModule } from '../users/users.module';
 import { UserSchema } from '../users/schemas/user.schema';
 import { RoomsModule } from '../rooms/rooms.module';
+import { JwtModule } from '@nestjs/jwt';
 
 /**
  * TeamsModule configures the Team and User models,
@@ -19,6 +20,9 @@ import { RoomsModule } from '../rooms/rooms.module';
     ]),
     forwardRef(() => UsersModule),
     forwardRef(() => RoomsModule),
+    JwtModule.register({
+      secret: 'AliasSecret',
+    }),
   ],
   controllers: [TeamsController],
   providers: [TeamsService],

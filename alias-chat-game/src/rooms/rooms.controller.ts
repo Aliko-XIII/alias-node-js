@@ -7,17 +7,20 @@ import {
   Param,
   Delete,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ParseObjectIdPipe } from '../parse-id.pipe';
 import { Types } from 'mongoose';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 /**
  * Controller for handling room-related requests.
  * Handles routes for creating, updating, retrieving, and deleting rooms.
  */
+@UseGuards(AuthGuard)
 @Controller('rooms')
 export class RoomsController {
   constructor(

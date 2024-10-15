@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { UsersService } from '../users/users.service';
@@ -14,8 +15,10 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { ParseObjectIdPipe } from '../parse-id.pipe';
 import { Types } from 'mongoose';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 // TeamsController manages CRUD operations for teams within a specified room.
+@UseGuards(AuthGuard)
 @Controller('rooms/:roomId/teams')
 export class TeamsController {
   constructor(

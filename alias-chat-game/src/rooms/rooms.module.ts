@@ -5,6 +5,7 @@ import { RoomsController } from './rooms.controller';
 import { Room, RoomSchema } from './schemas/room.schema';
 import { TeamsModule } from '../teams/teams.module';
 import { UsersModule } from '../users/users.module';
+import { JwtModule } from '@nestjs/jwt';
 
 /**
  * RoomsModule sets up the Room model and provides
@@ -12,6 +13,9 @@ import { UsersModule } from '../users/users.module';
  */
 @Module({
   imports: [
+    JwtModule.register({
+      secret: 'AliasSecret',
+    }),
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
     TeamsModule,
     forwardRef(() => UsersModule),
