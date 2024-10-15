@@ -2,9 +2,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: ["andrii-dev"]
+    branches: ["main"]
   pull_request:
-    branches: ["andrii-dev"]
+    branches: ["main"]
 
 jobs:
   build:
@@ -39,5 +39,5 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      - name: Run Tests
-        run: npm run test
+      - name: Run Unit Tests
+        run: npm run test:unit

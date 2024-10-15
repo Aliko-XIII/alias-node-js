@@ -24,7 +24,7 @@ export class RoomsService {
     @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
     @Inject(forwardRef(() => TeamsService))
     private readonly teamsService: TeamsService,
-  ) { }
+  ) {}
 
   /**
    * Creates a new room in the database.

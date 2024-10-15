@@ -3766,9 +3766,6 @@ Before tests use `cd ./alias-chat-game` to navigate to server directory.
 |:-----------|:---------|:---------|:--------|:---------|
 | All files  |   87.23  |    72.07 |   86.27 |    86.21 |
 
-
-
-
 ## Deployment
 
 Before deploying, ensure that you have the following:
