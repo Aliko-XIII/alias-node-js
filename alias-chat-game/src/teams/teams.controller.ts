@@ -15,6 +15,7 @@ import { UpdateTeamDto } from './dto/update-team.dto';
 import { ParseObjectIdPipe } from '../parse-id.pipe';
 import { Types } from 'mongoose';
 
+// TeamsController manages CRUD operations for teams within a specified room.
 @Controller('rooms/:roomId/teams')
 export class TeamsController {
   constructor(
@@ -22,8 +23,12 @@ export class TeamsController {
     private readonly usersService: UsersService,
   ) {}
 
-  // Add a team to a room
-  @Post() // api/v1/rooms/{roomId}/teams
+  /**
+   * @route POST /api/v1/rooms/{roomId}/teams
+   * @description Create a new team in the specified room
+   * @access Private (Authenticated user)
+   */
+  @Post()
   create(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Body() createTeamDto: CreateTeamDto,
@@ -31,8 +36,12 @@ export class TeamsController {
     return this.teamsService.create(roomId, createTeamDto);
   }
 
-  // Get all teams in a room
-  @Get() // api/v1/rooms/{roomId}/teams
+  /**
+   * @route GET /api/v1/rooms/{roomId}/teams
+   * @description Retrieve all teams in the specified room
+   * @access Private (Authenticated user)
+   */
+  @Get()
   findAllTeams(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Query('nestUsers') nestUsers: boolean = false,
@@ -40,16 +49,24 @@ export class TeamsController {
     return this.teamsService.findAll(roomId, nestUsers);
   }
 
-  // Deletes all teams from a specific room.
-  @Delete() // /api/v1/rooms/{roomId}/teams
+  /**
+   * @route DELETE /api/v1/rooms/{roomId}/teams
+   * @description Delete all teams from the specified room
+   * @access Private (Authenticated user)
+   */
+  @Delete()
   async deleteAllTeams(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
   ): Promise<{ message: string }> {
     return await this.teamsService.deleteAllTeamsFromRoom(roomId);
   }
 
-  // Get a specific team by ID
-  @Get(':teamId') // api/v1/rooms/{roomId}/teams/{teamId}
+  /**
+   * @route GET /api/v1/rooms/{roomId}/teams/{teamId}
+   * @description Retrieve a specific team by its ID in the specified room
+   * @access Private (Authenticated user)
+   */
+  @Get(':teamId')
   findOneTeam(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -57,8 +74,12 @@ export class TeamsController {
     return this.teamsService.findOne(roomId, teamId);
   }
 
-  // Update a team by ID
-  @Put(':teamId') // api/v1/rooms/{roomId}/teams/{teamId}
+  /**
+   * @route PUT /api/v1/rooms/{roomId}/teams/{teamId}
+   * @description Update a specific team by its ID in the specified room
+   * @access Private (Authenticated user)
+   */
+  @Put(':teamId')
   updateTeam(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -67,8 +88,12 @@ export class TeamsController {
     return this.teamsService.update(teamId, updateTeamDto);
   }
 
-  // Delete a team by ID
-  @Delete(':teamId') // api/v1/rooms/{roomId}/teams/{teamId}
+  /**
+   * @route DELETE /api/v1/rooms/{roomId}/teams/{teamId}
+   * @description Remove a specific team by its ID from the specified room
+   * @access Private (Authenticated user)
+   */
+  @Delete(':teamId')
   removeTeam(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -76,8 +101,12 @@ export class TeamsController {
     return this.teamsService.remove(roomId, teamId);
   }
 
-  // Get all players in a team
-  @Get(':teamId/players') // api/v1/rooms/{roomId}/teams/{teamId}/players
+  /**
+   * @route GET /api/v1/rooms/{roomId}/teams/{teamId}/players
+   * @description Retrieve all players in the specified team
+   * @access Private (Authenticated user)
+   */
+  @Get(':teamId/players')
   async findAllTeamPlayers(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -97,8 +126,12 @@ export class TeamsController {
     return players.sort((a, b) => Number(b.score) - Number(a.score));
   }
 
-  // Add a player to a team
-  @Post(':teamId/players/:userId') // api/v1/rooms/{roomId}/teams/{teamId}/players/{userId}
+  /**
+   * @route POST /api/v1/rooms/{roomId}/teams/{teamId}/players/{userId}
+   * @description Add a specific player to the specified team
+   * @access Private (Authenticated user)
+   */
+  @Post(':teamId/players/:userId')
   addPlayer(
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
     @Param('userId', ParseObjectIdPipe) userId: Types.ObjectId,
@@ -106,8 +139,12 @@ export class TeamsController {
     return this.teamsService.addPlayerToTeam(userId, teamId);
   }
 
-  // Remove a player from a team
-  @Delete(':teamId') // /api/v1/rooms/{roomId}/teams/{teamId}/players/{userId}
+  /**
+   * @route DELETE /api/v1/rooms/{roomId}/teams/{teamId}/players/{userId}
+   * @description Remove a specific player from the specified team in the specified room
+   * @access Private (Authenticated user)
+   */
+  @Delete(':teamId/players/:userId')
   removePlayer(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -116,8 +153,12 @@ export class TeamsController {
     return this.teamsService.removePlayer(roomId, teamId, userId);
   }
 
-  // Define a describer and leader in one round
-  @Put(':teamId/roles') //api/v1/rooms/{roomId}/teams/{teamId}/roles
+  /**
+   * @route PUT /api/v1/rooms/{roomId}/teams/{teamId}/roles
+   * @description Define a describer and a leader for the specified team in the specified room
+   * @access Private (Authenticated user)
+   */
+  @Put(':teamId/roles')
   defineDescriberAndLeader(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -125,8 +166,12 @@ export class TeamsController {
     return this.teamsService.defineDescriberAndLeader(roomId, teamId);
   }
 
-  // Reset round fields to null
-  @Put(':teamId/reset') // api/v1/rooms/{roomId}/teams/{teamId}/reset
+  /**
+   * @route PUT /api/v1/rooms/{roomId}/teams/{teamId}/reset
+   * @description Reset the round fields for the specified team in the specified room to null
+   * @access Private (Authenticated user)
+   */
+  @Put(':teamId/reset')
   resetRound(
     @Param('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -134,6 +179,11 @@ export class TeamsController {
     return this.teamsService.resetRound(roomId, teamId);
   }
 
+  /**
+   * @route PUT /api/v1/rooms/{roomId}/teams/{teamId}/calculate-scores
+   * @description Calculate and update scores for the specified team
+   * @access Private (Authenticated user)
+   */
   @Put(':teamId/calculate-scores')
   async calculateScores(
     @Param('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,

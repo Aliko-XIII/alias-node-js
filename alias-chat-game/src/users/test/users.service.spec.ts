@@ -14,7 +14,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { AuthGuard } from '../../auth/guards/auth.guard';
-import { mockAuthGuard } from '../__mocks__/auth.guard.mock';
+import { mockAuthGuard } from '../__mocks__/users-auth.guard.mock';
 
 describe('UsersService (Unit)', () => {
   let usersService: UsersService;

@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
 import { Connection, Types } from 'mongoose';
-import * as request from 'supertest';
+import request from 'supertest';
 import { DatabaseService } from '../../../database/database.service';
 import { createWordStub } from '../stubs/create-word.stub';
 import { createWordsStub } from '../stubs/create-words.stub';
@@ -76,7 +76,7 @@ describe('WordsController (integration)', () => {
       expect(createdWord).toBeTruthy(); // Ensure the word is saved in the database
     });
 
-    it('should return 400 if the word already exists', async () => {
+    it('should return 409 Conflict if the word already exists', async () => {
       await request(httpServer)
         .post('/words')
         .set('authorization', `Bearer ${authToken}`) // Set the authorization header
@@ -88,7 +88,7 @@ describe('WordsController (integration)', () => {
         .post('/words')
         .set('authorization', `Bearer ${authToken}`) // Set the authorization header
         .send(createWord)
-        .expect(400); // Expect a bad request (400 status)
+        .expect(409);
 
       expect(response.body.message).toEqual(
         `Word '${createWord.word}' already exists.`, // Check for correct error message

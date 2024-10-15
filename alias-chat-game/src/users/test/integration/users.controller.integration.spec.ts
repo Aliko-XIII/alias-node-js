@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { Connection, Types } from 'mongoose';
 import { AppModule } from '../../../app.module';
 import { DatabaseService } from '../../../database/database.service';
-import * as request from 'supertest';
+import request from 'supertest';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import {
   createTestUser,
@@ -11,7 +11,7 @@ import {
   createTestTeam,
 } from '../stubs/test-data-creators.stub';
 import { AuthGuard } from '../../../auth/guards/auth.guard';
-import { mockAuthGuard } from '../../__mocks__/auth.guard.mock';
+import { mockAuthGuard } from '../../__mocks__/users-auth.guard.mock';
 
 describe('UsersController (Integration)', () => {
   let dbConnection: Connection;

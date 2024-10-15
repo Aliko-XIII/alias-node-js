@@ -14,7 +14,6 @@ import { UsersModule } from '../users/users.module';
     TeamsModule,
     JwtModule.register({
       secret: 'AliasSecret',
-      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [WordsController],

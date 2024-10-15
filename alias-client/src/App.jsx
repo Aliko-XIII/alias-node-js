@@ -61,7 +61,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RegisterPage />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="leaderboard" element={<LeaderBoardPage />} />
+        <Route path="leaderboard" element={<LeaderBoardPage token={getTokens().access_token} />} />
         <Route
           path="describer"
           element={
@@ -127,7 +127,7 @@ export default function App() {
         />
         <Route
           path="profile"
-          element={<Profile getIdFromToken={getIdFromToken} />}
+          element={<Profile getIdFromToken={getIdFromToken} getTokens={getTokens} />}
         />
         <Route
           path="final-page"

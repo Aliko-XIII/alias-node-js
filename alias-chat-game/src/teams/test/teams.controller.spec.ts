@@ -3,7 +3,7 @@ import { TeamsController } from '../teams.controller';
 import { TeamsService } from '../teams.service';
 import { createTeamStub, teamArrStub, teamStub } from './stubs/team.stub';
 import { playersStub, userStub } from './stubs/user.stub';
-import { mockAuthGuard } from '../../users/__mocks__/auth.guard.mock';
+import { mockAuthGuard } from '../../users/__mocks__/users-auth.guard.mock';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { Team, TeamDocument } from '../schemas/team.schema';
 import { CreateTeamDto } from '../dto/create-team.dto';

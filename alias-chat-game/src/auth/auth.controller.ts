@@ -15,7 +15,7 @@ export class AuthController {
      * Authorization service
      */
     private readonly authService: AuthService,
-  ) { }
+  ) {}
 
   /**
    * Endpoint method for registering a new user.

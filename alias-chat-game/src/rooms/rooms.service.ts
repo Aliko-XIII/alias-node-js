@@ -15,6 +15,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { CreateTeamDto } from '../teams/dto/create-team.dto';
 import { TeamsService } from '../teams/teams.service';
 
+// RoomsService responsible for handling room-related operations.
 @Injectable()
 export class RoomsService {
   private readonly MAX_USERS_IN_ROOM = 9;
@@ -25,10 +26,16 @@ export class RoomsService {
     private readonly teamsService: TeamsService,
   ) {}
 
+  /**
+   * Creates a new room in the database.
+   * @param {CreateRoomDto} createRoomDto - The data transfer object containing the details of the room to be created.
+   * @returns {Promise<RoomDocument>} - The newly created room document.
+   * @throws {ConflictException} - If a room with the same name already exists.
+   * @throws {InternalServerErrorException} - If an error occurs during the database operation.
+   */
   async create(createRoomDto: CreateRoomDto) {
-    const createdRoom = new this.roomModel(createRoomDto);
     try {
-      return await createdRoom.save();
+      return await this.roomModel.create(createRoomDto);
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException(
@@ -39,10 +46,27 @@ export class RoomsService {
     }
   }
 
+  /**
+   * Retrieves all rooms from the database.
+   * @returns {Promise<RoomDocument[]>} - A list of all room documents.
+   */
   async findAll() {
     return await this.roomModel.find().exec();
   }
 
+  async clearTeams(roomId: Types.ObjectId) {
+    const room = await this.findOne(roomId);
+    room.teams = [];
+    room.save();
+  }
+
+  /**
+   * Retrieves a specific room by its ID.
+   * @param {Types.ObjectId} id - The ID of the room to retrieve.
+   * @returns {Promise<RoomDocument>} - The requested room document.
+   * @throws {NotFoundException} - If the room with the given ID is not found.
+   * @throws {BadRequestException} - If the provided ID is invalid.
+   */
   async findOne(id: Types.ObjectId): Promise<RoomDocument> {
     this.validateId(id);
     const room = await this.roomModel.findById(id).exec();
@@ -52,27 +76,47 @@ export class RoomsService {
     return room;
   }
 
+  /**
+   * Updates a room by its ID.
+   * @param {Types.ObjectId} id - The ID of the room to update.
+   * @param {UpdateRoomDto} updateRoomDto - The data transfer object containing the room's updated data.
+   * @returns {Promise<RoomDocument>} - The updated room document.
+   * @throws {NotFoundException} - If the room with the given ID is not found.
+   * @throws {BadRequestException} - If the provided ID is invalid.
+   */
   async update(id: Types.ObjectId, updateRoomDto: UpdateRoomDto) {
     this.validateId(id);
-    const updatedRoom = await this.roomModel
-      .findByIdAndUpdate(id, updateRoomDto, { new: true })
-      .exec();
+    const updatedRoom = await this.roomModel.findByIdAndUpdate(
+      id,
+      updateRoomDto,
+      { new: true },
+    );
     if (!updatedRoom) {
       throw new NotFoundException(`Room with ID ${id} not found`);
     }
     return updatedRoom;
   }
 
-  // Delete the room
-  // api/v1/rooms/:roomId
+  /**
+   * Deletes a room by its ID.
+   * @param {Types.ObjectId} id - The ID of the room to delete.
+   * @returns {Promise<void>} - No content is returned on success.
+   * @throws {NotFoundException} - If the room with the given ID is not found.
+   * @throws {BadRequestException} - If the provided ID is invalid.
+   */
   async delete(id: Types.ObjectId) {
     this.validateId(id);
-    const deletedRoom = await this.roomModel.findByIdAndDelete(id).exec();
+    const deletedRoom = await this.roomModel.findByIdAndDelete(id);
     if (!deletedRoom) {
       throw new NotFoundException(`Room with ID ${id} not found`);
     }
   }
 
+  /**
+   * Validates the given room ID.
+   * @param {Types.ObjectId} id - The ID to validate.
+   * @throws {BadRequestException} - If the provided ID is not a valid MongoDB ObjectId.
+   */
   private validateId(id: Types.ObjectId) {
     if (!mongoose.isValidObjectId(id))
       throw new BadRequestException('Invalid ID');
@@ -208,7 +252,7 @@ export class RoomsService {
    * @returns {Promise<{ message: string }>} - A message indicating the result of the deletion operation.
    */
   async deleteAllRooms(): Promise<{ message: string }> {
-    const { deletedCount } = await this.roomModel.deleteMany({}).exec();
+    const { deletedCount } = await this.roomModel.deleteMany({});
     return {
       message:
         deletedCount > 0
@@ -217,6 +261,12 @@ export class RoomsService {
     };
   }
 
+  /**
+   * Checks if all teams in the specified room are ready, meaning each team has the maximum number of players.
+   * @param {Types.ObjectId} roomId - The ID of the room to check.
+   * @returns {Promise<boolean>} - Returns true if all teams in the room have the maximum number of players, false otherwise.
+   * @throws {NotFoundException} - If the room with the given ID is not found.
+   */
   async isRoomReady(roomId) {
     const MAX_USERS_IN_TEAM = 3;
     const room = await this.findOne(roomId);
@@ -231,6 +281,13 @@ export class RoomsService {
     ).every(Boolean);
   }
 
+  /**
+   * Starts the game in the specified room by defining the describer and leader for each team
+   * and initiating the round management process for each team.
+   * @param {Types.ObjectId} roomId - The ID of the room where the game will be started.
+   * @returns {Promise<void>} - No content on success.
+   * @throws {NotFoundException} - If the room with the given ID is not found.
+   */
   async startGame(roomId) {
     const room = await this.findOne(roomId);
     room.teams.forEach(async (teamId) => {

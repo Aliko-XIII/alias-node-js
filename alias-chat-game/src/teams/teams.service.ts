@@ -101,6 +101,22 @@ export class TeamsService {
     if (!team) {
       throw new NotFoundException('Team not found.');
     }
+    const roomTeams = await this.findAll(team.roomId);
+    let joined = false;
+    roomTeams.forEach((team) => {
+      team.players.forEach((playerId) => {
+        if (playerId.toString() == userId.toString()) {
+          joined = true;
+        }
+      });
+    });
+    if (joined) {
+      return {
+        message: `User ${userId.toString()} already joined to team`,
+        roomId: null,
+        teamId: null,
+      };
+    }
 
     if (team.players.length >= this.MAX_USERS_IN_TEAM) {
       throw new BadRequestException('Team is already full.');
@@ -170,6 +186,12 @@ export class TeamsService {
       .exec();
   }
 
+  /**
+   * Retrieves all teams within a specified room, sorted by team score.
+   * @param {Types.ObjectId} roomId - The ID of the room from which to retrieve teams.
+   * @param {boolean} nestUsers - Optional parameter to include player details in the response.
+   * @returns {Promise<TeamDocument[]>} - An array of team documents for the specified room.
+   */
   findAll(roomId: Types.ObjectId, nestUsers: boolean = false) {
     let query = this.teamModel.find({ roomId }).sort({ teamScore: -1 });
 
@@ -180,6 +202,13 @@ export class TeamsService {
     return query.exec();
   }
 
+  /**
+   * Retrieves a specific team within a specified room by its ID.
+   * @param {Types.ObjectId} roomId - The ID of the room containing the team.
+   * @param {Types.ObjectId} teamId - The ID of the team to be retrieved.
+   * @returns {Promise<TeamDocument>} - The team document for the specified team and room.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
+   */
   async findOne(roomId: Types.ObjectId, teamId: Types.ObjectId) {
     const team = await this.teamModel.findOne({ _id: teamId, roomId }).exec();
     if (!team) {
@@ -190,8 +219,12 @@ export class TeamsService {
     return team;
   }
 
-  // Delete a specific team in the specified room
-  // api/v1/rooms/{roomId}/teams/{teamId}
+  /**
+   * Removes a team from a specified room by its ID.
+   * @param {Types.ObjectId} roomId - The ID of the room from which the team will be removed.
+   * @param {Types.ObjectId} teamId - The ID of the team to be removed.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
+   */
   async remove(roomId: Types.ObjectId, teamId: Types.ObjectId) {
     const result = await this.teamModel.deleteOne({ _id: teamId, roomId });
     if (result.deletedCount === 0) {
@@ -199,11 +232,26 @@ export class TeamsService {
     }
   }
 
+  /**
+   * Retrieves all players belonging to a specific team within a specified room.
+   * @param {Types.ObjectId} roomId - The ID of the room containing the team.
+   * @param {Types.ObjectId} teamId - The ID of the team whose players will be retrieved.
+   * @returns {Promise<Types.ObjectId[]>} - An array of player IDs belonging to the specified team.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
+   */
   async findAllTeamPlayers(roomId: Types.ObjectId, teamId: Types.ObjectId) {
     const team = await this.findOne(roomId, teamId);
     return team.players;
   }
 
+  /**
+   * Removes a player from a specified team within a specified room.
+   * @param {Types.ObjectId} roomId - The ID of the room containing the team.
+   * @param {Types.ObjectId} teamId - The ID of the team from which the player will be removed.
+   * @param {Types.ObjectId} userId - The ID of the player to be removed.
+   * @returns {Promise<TeamDocument>} - The updated team document after the player has been removed.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
+   */
   async removePlayer(
     roomId: Types.ObjectId,
     teamId: Types.ObjectId,
@@ -225,13 +273,11 @@ export class TeamsService {
   }
 
   /**
-   * This method defines both the next describer and team leader for the given team in a room.
-   * If the describer is not yet defined, the first player in the array will be selected as the describer,
-   * and the second player as the team leader. After that, it cycles through the players.
-   *
-   * @param roomId - The ID of the room where the team is located.
-   * @param teamId - The ID of the team for which to define the next describer and leader.
-   * @returns The updated team with new describer and leader.
+   * Defines the next describer and team leader for a specified team within a room.
+   * @param {Types.ObjectId} roomId - The ID of the room containing the team.
+   * @param {Types.ObjectId} teamId - The ID of the team for which the describer and leader will be defined.
+   * @returns {Promise<void>} - A promise indicating the successful assignment of the describer and leader.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
    */
   async defineDescriberAndLeader(
     roomId: Types.ObjectId,
@@ -260,6 +306,14 @@ export class TeamsService {
     return this.setTeamLeader(roomId, teamId, { userId: nextLeader });
   }
 
+  /**
+   * Sets the describer for a specified team within a room.
+   * @param {Types.ObjectId} roomId - The ID of the room containing the team.
+   * @param {Types.ObjectId} teamId - The ID of the team for which the describer will be set.
+   * @param {SetDescriberDto} setDescriberDto - The data transfer object containing the ID of the user to be set as describer.
+   * @returns {Promise<TeamDocument>} - The updated team document with the new describer.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
+   */
   private async setDescriber(
     roomId: Types.ObjectId,
     teamId: Types.ObjectId,
@@ -280,6 +334,14 @@ export class TeamsService {
     return team;
   }
 
+  /**
+   * Sets the team leader for a specified team within a room.
+   * @param {Types.ObjectId} roomId - The ID of the room containing the team.
+   * @param {Types.ObjectId} teamId - The ID of the team for which the leader will be set.
+   * @param {SetTeamLeaderDto} setTeamLeaderDto - The data transfer object containing the ID of the user to be set as team leader.
+   * @returns {Promise<TeamDocument>} - The updated team document with the new team leader.
+   * @throws {NotFoundException} - If the specified team does not exist in the room.
+   */
   private async setTeamLeader(
     roomId: Types.ObjectId,
     teamId: Types.ObjectId,
@@ -332,6 +394,12 @@ export class TeamsService {
     return team;
   }
 
+  /**
+   * Calculates and updates the scores for a specified team and its players based on their success status.
+   * @param {Types.ObjectId} teamId - The ID of the team for which scores will be calculated.
+   * @returns {Promise<{ message: string }>} - A message indicating the result of the score calculation.
+   * @throws {NotFoundException} - If the specified team is not found.
+   */
   async calculateScores(teamId: Types.ObjectId): Promise<{ message: string }> {
     const team = await this.findTeamById(teamId);
 
@@ -356,6 +424,13 @@ export class TeamsService {
     }
   }
 
+  /**
+   * Starts an interval for managing rounds in a game, handling team rotations and determining the winning team.
+   * @param {Types.ObjectId} roomId - The ID of the room in which the game is being played.
+   * @param {Types.ObjectId} teamId - The ID of the team currently playing.
+   * @returns {void} - This method does not return a value.
+   * @throws {NotFoundException} - Throws if the team or room cannot be found during the process.
+   */
   async startIntervalRoundManage(
     roomId: Types.ObjectId,
     teamId: Types.ObjectId,
@@ -372,13 +447,25 @@ export class TeamsService {
       } else {
         Logger.log(`Stop interval ${roomId}-${teamId}`);
         const room = await this.roomsService.findOne(roomId);
-        // Find winner team and save game results for players
-        const topTeam = (
-          await Promise.all(
-            room.teams.map(async (teamId) => await this.findTeamById(teamId)),
-          )
-        ).sort((a, b) => b.teamScore - a.teamScore)[0];
-        const teamWon = topTeam._id.toString() == teamId.toString();
+        const teams = await Promise.all(
+          room.teams.map(async (teamId) => await this.findTeamById(teamId)),
+        );
+
+        const highestScore = Math.max(...teams.map((team) => team.teamScore));
+
+        const allTeamsSameScore = teams.every(
+          (team) => team.teamScore === highestScore,
+        );
+
+        let teamWon = false;
+
+        if (!allTeamsSameScore) {
+          teamWon = teams.some(
+            (team) =>
+              team.teamScore === highestScore &&
+              team._id.toString() === teamId.toString(),
+          );
+        }
         await Promise.all(
           team.players.map(
             async (userId) =>
@@ -394,16 +481,18 @@ export class TeamsService {
     }, 85000);
   }
 
+  /**
+   * Resets a team by removing all players from the specified room and creating a new team entry.
+   * @param {TeamDocument} team - The team document to be reset.
+   * @param {Types.ObjectId} roomId - The ID of the room where the team is located.
+   * @returns {Promise<void>} - This method does not return a value.
+   * @throws {NotFoundException} - Throws if the team is not found during the process.
+   */
   async resetTeam(team: TeamDocument, roomId: Types.ObjectId) {
     // Remove all team players from room
-    const userIds = team.players;
-    const removedIds = [];
     await Promise.all(
-      userIds.map(async (userId) => {
-        if (removedIds.indexOf(userId) !== -1) {
-          await this.roomsService.removeUserFromRoom(userId, roomId);
-          removedIds.push(userId);
-        }
+      team.players.map(async (userId) => {
+        await this.roomsService.removeUserFromRoom(userId, roomId);
       }),
     );
     const newTeam: CreateTeamDto & { roomId: Types.ObjectId } = {
@@ -412,9 +501,11 @@ export class TeamsService {
       players: [],
     };
     // Remove old team from DB
-    this.remove(roomId, team._id);
+    await this.remove(roomId, team._id);
+    await this.roomsService.clearTeams(roomId);
+
     // Add new team to DB
     const createdTeam = await this.create(roomId, newTeam);
-    this.roomsService.updateTeam(roomId, [createdTeam._id]);
+    await this.roomsService.updateTeam(roomId, [createdTeam._id]);
   }
 }

@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { AuthGuard } from './gurards/auth.guard';
+import { AuthController } from '../auth.controller';
+import { AuthService } from '../auth.service';
+import { CreateUserDto } from '../../users/dto/create-user.dto';
+import { LoginDto } from '../dto/login.dto';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { AuthGuard } from '../guards/auth.guard';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
 
-  beforeEach(async () => {
-    const mockAuthService = {
-      register: jest.fn(),
-      login: jest.fn(),
-      refresh: jest.fn(),
-      logout: jest.fn(),
-    };
+  const mockAuthService = {
+    register: jest.fn(),
+    login: jest.fn(),
+    refresh: jest.fn(),
+    logout: jest.fn(),
+  };
 
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
@@ -41,9 +41,13 @@ describe('AuthController', () => {
         username: 'test',
         password: 'test',
       };
-      const result = { userId: 'testUserId' };
 
-      jest.spyOn(authService, 'register').mockResolvedValue(result);
+      const result = {
+        message: 'User registered successfully',
+        data: { userId: 'testUserId' },
+      };
+
+      (authService.register as jest.Mock).mockResolvedValue(result);
 
       expect(await authController.register(createUserDto)).toEqual(result);
       expect(authService.register).toHaveBeenCalledWith(createUserDto);
@@ -61,7 +65,7 @@ describe('AuthController', () => {
         },
       };
 
-      jest.spyOn(authService, 'login').mockResolvedValue(result);
+      (authService.login as jest.Mock).mockResolvedValue(result);
 
       expect(await authController.login(loginDto)).toEqual(result);
       expect(authService.login).toHaveBeenCalledWith(loginDto);
@@ -73,9 +77,13 @@ describe('AuthController', () => {
       const refreshTokenDto: RefreshTokenDto = {
         refreshToken: 'testRefreshToken',
       };
-      const result = { access_token: 'newAccessToken' };
 
-      jest.spyOn(authService, 'refresh').mockResolvedValue(result);
+      const result = {
+        message: 'Access token refreshed',
+        data: { access_token: 'newAccessToken' },
+      };
+
+      (authService.refresh as jest.Mock).mockResolvedValue(result);
 
       expect(await authController.refresh(refreshTokenDto)).toEqual(result);
       expect(authService.refresh).toHaveBeenCalledWith(refreshTokenDto);
@@ -89,7 +97,7 @@ describe('AuthController', () => {
         message: 'User logged out successfully, refresh token deleted.',
       };
 
-      jest.spyOn(authService, 'logout').mockResolvedValue(result);
+      (authService.logout as jest.Mock).mockResolvedValue(result);
 
       expect(await authController.logout(request)).toEqual(result);
       expect(authService.logout).toHaveBeenCalledWith('testUserId');

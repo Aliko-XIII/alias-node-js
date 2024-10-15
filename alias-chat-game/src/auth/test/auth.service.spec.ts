@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { AuthService } from '../auth.service';
+import { UsersService } from '../../users/users.service';
 import { Model } from 'mongoose';
-import { Auth } from './schemas/auth.schema';
+import { Auth } from '../schemas/auth.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { User } from '../users/schemas/user.schema';
-import { LoginDto } from './dto/login.dto';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { UserSafeDto } from '../users/dto/user-safe.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { CreateUserDto } from '../../users/dto/create-user.dto';
+import { User } from '../../users/schemas/user.schema';
+import { LoginDto } from '../dto/login.dto';
+import { BadRequestException } from '@nestjs/common';
+import { UserSafeDto } from '../../users/dto/user-safe.dto';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
 
 describe('AuthService', () => {
   let authService: AuthService;

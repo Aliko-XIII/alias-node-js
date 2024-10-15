@@ -6,6 +6,10 @@ import { Room, RoomSchema } from './schemas/room.schema';
 import { TeamsModule } from '../teams/teams.module';
 import { UsersModule } from '../users/users.module';
 
+/**
+ * RoomsModule sets up the Room model and provides
+ * RoomsService to handle room-related logic
+ */
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),

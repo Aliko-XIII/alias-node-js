@@ -23,7 +23,6 @@ import { TeamsModule } from '../teams/teams.module';
     ]),
     JwtModule.register({
       secret: 'AliasSecret',
-      signOptions: { expiresIn: '1h' },
     }),
     RoomsModule,
     forwardRef(() => TeamsModule),

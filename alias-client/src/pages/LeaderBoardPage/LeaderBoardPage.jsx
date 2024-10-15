@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAllUsers } from '../../fetchers/getAllUsers';
+import { getLeaderboard } from '../../fetchers/getLeaderboard';
 import { Link } from 'react-router-dom';
 
 export default function LeaderBoardPage() {
@@ -10,7 +10,7 @@ export default function LeaderBoardPage() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const userList = await getAllUsers();
+                const userList = await getLeaderboard();
                 setUsers(userList);
             } catch {
                 setError('Failed to load leaderboard data.');

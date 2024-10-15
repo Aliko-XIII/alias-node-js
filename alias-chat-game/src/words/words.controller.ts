@@ -22,6 +22,7 @@ import { ParseObjectIdPipe } from '../parse-id.pipe';
  * including creating, retrieving, updating, and deleting words.
  */
 @Controller('words')
+@UseGuards(AuthGuard)
 export class WordsController {
   constructor(
     /** Service for handling business logic related to words. */
@@ -45,7 +46,6 @@ export class WordsController {
    * @returns {Promise<Word[]>} - List of all words.
    */
   @Get()
-  @UseGuards(AuthGuard)
   findAll(): Promise<Word[]> {
     return this.wordsService.findAll();
   }
@@ -57,7 +57,6 @@ export class WordsController {
    * @returns {Promise<Word>} - The requested word.
    */
   @Get(':id')
-  @UseGuards(AuthGuard)
   findOne(@Param('id', ParseObjectIdPipe) id: Types.ObjectId): Promise<Word> {
     return this.wordsService.findOne(id);
   }
@@ -70,7 +69,6 @@ export class WordsController {
    * @returns {Promise<Word>} - The updated word.
    */
   @Patch(':id')
-  @UseGuards(AuthGuard)
   update(
     @Param('id', ParseObjectIdPipe) id: Types.ObjectId,
     @Body() updateWordDto: UpdateWordDto,
@@ -85,7 +83,6 @@ export class WordsController {
    * @returns {Promise<{ message: string }>} - Confirmation message on successful deletion.
    */
   @Delete(':id')
-  @UseGuards(AuthGuard)
   remove(
     @Param('id', ParseObjectIdPipe) id: Types.ObjectId,
   ): Promise<{ message: string }> {
@@ -102,7 +99,6 @@ export class WordsController {
    * @returns {Promise<{ word: Word; tryedWords: Types.ObjectId[] }>} - Random word and list of tried words.
    */
   @Post('random')
-  @UseGuards(AuthGuard)
   async getRandomWord(
     @Body('roomId', ParseObjectIdPipe) roomId: Types.ObjectId,
     @Body('teamId', ParseObjectIdPipe) teamId: Types.ObjectId,
@@ -119,7 +115,6 @@ export class WordsController {
    * @returns {Promise<{ correct: boolean }>} - Whether the answer is correct.
    */
   @Post(':id/check-answer')
-  @UseGuards(AuthGuard)
   async checkAnswer(
     @Param('id', ParseObjectIdPipe) wordId: Types.ObjectId,
     @Body('answer') answer: string,
@@ -136,7 +131,6 @@ export class WordsController {
    * @returns {Promise<{ correct: boolean }>} - Whether the description is correct.
    */
   @Post(':id/check-description')
-  @UseGuards(AuthGuard)
   async checkDescription(
     @Param('id', ParseObjectIdPipe) wordId: Types.ObjectId,
     @Body('description') description: string,

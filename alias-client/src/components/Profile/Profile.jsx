@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Profile({getIdFromToken}) {
+export default function Profile({getIdFromToken, getTokens}) {
     const [userData, setUserData] = useState({
       username: '',
       score: 0,
@@ -16,7 +16,15 @@ export default function Profile({getIdFromToken}) {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/users/${userId}`);
+              const response = await axios.get(
+                `${import.meta.env.VITE_SERVER_URL}/api/v1/users/${userId}`, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${getTokens().access_token}`
+                    }
+                }
+            );
+    
                 setUserData(response.data);
             } catch (error) {
                 console.error('Error', error)

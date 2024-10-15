@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
 import { Connection, Types } from 'mongoose';
 import { DatabaseService } from '../../../database/database.service';
-import * as request from 'supertest';
+import request from 'supertest';
 import { createLeaderboardsStub } from '../stubs/create-leaderboards.stub';
 import { leaderboardsStub } from '../stubs/leaderboards.stub';
 

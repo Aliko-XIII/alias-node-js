@@ -254,9 +254,8 @@ describe('TeamsService', () => {
       const teamId = new Types.ObjectId();
       const team = createTeamStub();
 
-      
       (teamModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValueOnce(team), 
+        exec: jest.fn().mockResolvedValueOnce(team),
       });
 
       const result = await teamsService.findOne(roomId, teamId);
@@ -362,7 +361,7 @@ describe('TeamsService', () => {
 
     it('should set the first player as describer and second player as leader if describer is not defined', async () => {
       (teamModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValueOnce(team), 
+        exec: jest.fn().mockResolvedValueOnce(team),
       });
 
       const setTeamLeaderSpy = jest
@@ -388,10 +387,10 @@ describe('TeamsService', () => {
     });
 
     it('should cycle the describer and set the next player as leader if describer is already defined', async () => {
-      team.describer = team.players[0]; 
+      team.describer = team.players[0];
 
       (teamModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValueOnce(team), 
+        exec: jest.fn().mockResolvedValueOnce(team),
       });
 
       const setTeamLeaderSpy = jest
@@ -449,7 +448,7 @@ describe('TeamsService', () => {
       };
 
       (teamModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValueOnce(updatedTeam), 
+        exec: jest.fn().mockResolvedValueOnce(updatedTeam),
       });
 
       const result = await teamsService.resetRound(roomId, teamId);
@@ -466,7 +465,7 @@ describe('TeamsService', () => {
         },
         { new: true },
       );
-      expect(result).toEqual(updatedTeam); 
+      expect(result).toEqual(updatedTeam);
       expect(result.selectedWord).toBeNull();
       expect(result.description).toBeNull();
       expect(result.success).toBeNull();
@@ -475,7 +474,7 @@ describe('TeamsService', () => {
 
     it('should throw NotFoundException if the team is not found', async () => {
       (teamModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValueOnce(null), 
+        exec: jest.fn().mockResolvedValueOnce(null),
       });
 
       await expect(teamsService.resetRound(roomId, teamId)).rejects.toThrow(

@@ -7,6 +7,7 @@ import { wordStub } from './stubs/word.stub';
 import { TeamsService } from '../../teams/teams.service';
 import {
   BadRequestException,
+  ConflictException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -71,7 +72,7 @@ describe('WordsService', () => {
       expect(result).toEqual(createdWord);
     });
 
-    it('should throw BadRequestException if word already exists', async () => {
+    it('should throw ConflictException if word already exists', async () => {
       wordModel.findOne = jest.fn().mockResolvedValue(wordStub());
 
       await expect(
@@ -79,7 +80,7 @@ describe('WordsService', () => {
           word: wordStub().word,
           similarWords: wordStub().similarWords,
         }),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(ConflictException);
     });
   });
 

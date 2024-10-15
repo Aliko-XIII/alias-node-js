@@ -7,7 +7,7 @@ import { AuthGuard } from '../../auth/guards/auth.guard';
 import { UpdateWordDto } from '../dto/update-word.dto';
 import { CreateWordDto } from '../dto/create-word.dto';
 import { Types } from 'mongoose';
-import { mockAuthGuard } from '../__mocks__/auth.guard.mock';
+import { mockAuthGuard } from '../__mocks__/words-auth.guard.mock';
 
 // Mocking WordsService to isolate tests
 jest.mock('../words.service');

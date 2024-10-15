@@ -4,7 +4,7 @@ import { UserSafeDto } from '../dto/user-safe.dto';
 import { UsersController } from '../users.controller';
 import { UsersService } from '../users.service';
 import { safeUserStub } from './stubs/safe-user.stub';
-import { mockAuthGuard } from '../__mocks__/auth.guard.mock';
+import { mockAuthGuard } from '../__mocks__/users-auth.guard.mock';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { RoomsService } from '../../rooms/rooms.service';

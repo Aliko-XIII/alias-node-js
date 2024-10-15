@@ -28,10 +28,9 @@ export class RoomsController {
   ) {}
 
   /**
-   * Endpoint for creating a new room.
-   * POST /api/v1/rooms
-   * @param {CreateRoomDto} createRoomDto Request body with room's data.
-   * @returns {Promise<any>} The newly created room.
+   * @route POST /api/v1/rooms
+   * @description Create a new room
+   * @access Private (Authenticated user)
    */
   @Post()
   async create(@Body() createRoomDto: CreateRoomDto) {
@@ -39,11 +38,9 @@ export class RoomsController {
   }
 
   /**
-   * Endpoint for updating a specific room by ID.
-   * PATCH /api/v1/rooms/{id}
-   * @param {Types.ObjectId} id The ID of the room to update.
-   * @param {UpdateRoomDto} updateRoomDto Request body with room's updated data.
-   * @returns {Promise<any>} The updated room.
+   * @route PATCH /api/v1/rooms/{id}
+   * @description Update a specific room by ID with new data
+   * @access Private (Authenticated user)
    */
   @Patch(':id')
   async update(
@@ -54,9 +51,9 @@ export class RoomsController {
   }
 
   /**
-   * Endpoint for retrieving all rooms.
-   * GET /api/v1/rooms
-   * @returns {Promise<any[]>} A list of all rooms.
+   * @route GET /api/v1/rooms
+   * @description Retrieve a list of all rooms
+   * @access Private (Authenticated user)
    */
   @Get()
   async findAll() {
@@ -64,10 +61,9 @@ export class RoomsController {
   }
 
   /**
-   * Endpoint for retrieving a specific room by ID.
-   * GET /api/v1/rooms/{id}
-   * @param {Types.ObjectId} id The ID of the room to retrieve.
-   * @returns {Promise<any>} The requested room.
+   * @route GET /api/v1/rooms/{id}
+   * @description Retrieve details of a specific room by ID
+   * @access Private (Authenticated user)
    */
   @Get(':id')
   async findOne(@Param('id', ParseObjectIdPipe) id: Types.ObjectId) {
@@ -75,10 +71,9 @@ export class RoomsController {
   }
 
   /**
-   * Endpoint for deleting a specific room by ID.
-   * DELETE /api/v1/rooms/{id}
-   * @param {Types.ObjectId} id The ID of the room to delete.
-   * @returns {Promise<void>} No content on success.
+   * @route DELETE /api/v1/rooms/{id}
+   * @description Delete a specific room by ID
+   * @access Private (Authenticated user)
    */
   @Delete(':id')
   @HttpCode(204)
@@ -87,9 +82,9 @@ export class RoomsController {
   }
 
   /**
-   * Endpoint for deleting all rooms.
-   * DELETE /api/v1/rooms
-   * @returns {Promise<{ message: string }>} A message indicating success.
+   * @route DELETE /api/v1/rooms
+   * @description Delete all rooms
+   * @access Private (Authenticated user)
    */
   @Delete()
   async deleteAllRooms(): Promise<{ message: string }> {
